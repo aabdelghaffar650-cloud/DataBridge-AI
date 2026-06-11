@@ -1,6 +1,0 @@
-auth.json
-*.json
-__pycache__/
-*.pyc
-.env
-desktop/
