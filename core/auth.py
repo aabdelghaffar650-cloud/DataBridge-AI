@@ -282,8 +282,26 @@ def _render_first_run_setup() -> None:
                 st.error(msg)
 
 
+def _sync_secrets_to_env() -> None:
+    """Bridge Streamlit Cloud Secrets into os.environ for credential overrides.
+
+    Lets a deployment configure DATABRIDGE_USERNAME / DATABRIDGE_PASSWORD (or
+    DATABRIDGE_PASSWORD_HASH) via the Streamlit Cloud "Secrets" panel without any
+    code change, so a public demo account works without the first-run setup gate.
+    """
+    for key in ("DATABRIDGE_USERNAME", "DATABRIDGE_PASSWORD", "DATABRIDGE_PASSWORD_HASH"):
+        if not os.environ.get(key):
+            try:
+                if key in st.secrets:
+                    os.environ[key] = str(st.secrets[key])
+            except Exception:
+                pass
+
+
 def render_login_gate() -> bool:
     """Render setup/login screen if needed. Returns True when the app can continue."""
+    _sync_secrets_to_env()
+
     if not LOGIN_REQUIRED:
         st.session_state.is_authenticated = True
         return True
