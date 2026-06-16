@@ -4,14 +4,25 @@
 # ════════════════════════════════════════════════════════
 import streamlit as st
 from core.history import SmartHistoryManager
+<<<<<<< HEAD
+=======
+from config.settings import DEFAULT_LANGUAGE
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 
 
 def init_session_state() -> None:
     """Initialise every session-state key exactly once."""
     defaults = {
+<<<<<<< HEAD
         # ── Auth ─────────────────────────────────────
         "is_authenticated":  False,
         "current_user":      "",
+=======
+        # ── Auth / Language ───────────────────────────
+        "is_authenticated":  False,
+        "current_user":      "",
+        "language":          DEFAULT_LANGUAGE,
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 
         # ── Core DataFrame ──────────────────────────────
         "df":                  None,

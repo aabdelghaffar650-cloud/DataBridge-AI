@@ -25,6 +25,7 @@
     }
   },
   "bundle": {
+<<<<<<< HEAD
   "active": true,
   "targets": ["nsis"],
   "resources": {
@@ -48,3 +49,30 @@
   }
   }
 }
+=======
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "resources": {
+      "../../resources/python": "python",
+      "../../app.py": "app/app.py",
+      "../../launch_streamlit.py": "app/launch_streamlit.py",
+      "../../requirements.txt": "app/requirements.txt",
+      "../../config": "app/config",
+      "../../core": "app/core",
+      "../../modules": "app/modules",
+      "../../ui": "app/ui",
+      "../../_pages": "app/_pages",
+      "../../ai": "app/ai",
+      "../../.streamlit": "app/.streamlit"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "perUser",
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d

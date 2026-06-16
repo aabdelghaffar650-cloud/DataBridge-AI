@@ -22,11 +22,19 @@ class GeminiCloudEngine(AIEngineStrategy):
             for m in history[-10:]
         )
         full_prompt = (
+<<<<<<< HEAD
             f"You are an expert data analyst inside DataBridge AI.\n"
             f"Data context:\n{context}\n\n"
             f"Previous conversation:\n{history_text}\n\n"
             f"User: {prompt}\n\n"
             "Answer in English. Be precise, concise, and practical."
+=======
+            f"أنت محلل بيانات خبير داخل DataBridge AI.\n"
+            f"سياق البيانات:\n{context}\n\n"
+            f"المحادثة السابقة:\n{history_text}\n\n"
+            f"المستخدم: {prompt}\n\n"
+            "أجب بنفس لغة المستخدم (عربي أو إنجليزي). كن دقيقاً ومختصراً وعملياً."
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         )
         payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
         resp = requests.post(
@@ -44,6 +52,7 @@ class GeminiCloudEngine(AIEngineStrategy):
 
     def get_engine_type(self) -> str:
         return "cloud"
+<<<<<<< HEAD
 
     def test_connection(self) -> tuple[bool, str]:
         try:
@@ -63,3 +72,5 @@ class GeminiCloudEngine(AIEngineStrategy):
         except Exception:
             message = resp.text
         return False, f"Gemini API error ({resp.status_code}): {message}"
+=======
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d

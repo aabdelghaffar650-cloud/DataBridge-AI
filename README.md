@@ -62,3 +62,15 @@ mysql+pymysql://user:password@host:3306/database
 ## Language
 
 Language switch supports English and Arabic from the login screen and sidebar.
+<<<<<<< HEAD
+=======
+
+
+## License
+
+Copyright © 2026 Ahmed Abd Elghaffar
+
+All Rights Reserved.
+
+This repository is provided for portfolio and demonstration purposes only. No permission is granted to copy, modify, distribute, sublicense, sell, or use any part of this software without prior written permission from the author.
+>>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
