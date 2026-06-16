@@ -1,0 +1,8 @@
+﻿venv/
+__pycache__/
+*.pyc
+.databridge/auth.json
+*.egg-info/
+.streamlit/secrets.toml
+desktop/src-tauri/target/
+resources/

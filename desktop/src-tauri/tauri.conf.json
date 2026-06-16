@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DataBridge AI",
+  "version": "0.1.3",
+  "identifier": "com.databridge.ai",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "frontendDist": "../src"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "DataBridge AI",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1100,
+        "minHeight": 720,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+  "active": true,
+  "targets": ["nsis"],
+  "resources": {
+    "../../resources/python": "python",
+    "../../app.py": "app/app.py",
+    "../../launch_streamlit.py": "app/launch_streamlit.py",
+    "../../requirements.txt": "app/requirements.txt",
+    "../../config": "app/config",
+    "../../core": "app/core",
+    "../../modules": "app/modules",
+    "../../ui": "app/ui",
+    "../../_pages": "app/_pages",
+    "../../ai": "app/ai",
+    "../../.streamlit": "app/.streamlit"
+  },
+  "windows": {
+    "nsis": {
+      "installMode": "currentUser",
+      "displayLanguageSelector": false
+    }
+  }
+  }
+}
