@@ -4,10 +4,6 @@
 import streamlit as st
 
 from core.auth import get_current_auth_info, render_change_password_form
-<<<<<<< HEAD
-=======
-from core.i18n import LANGUAGE_OPTIONS
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 from core.security import safe_html
 
 
@@ -64,17 +60,6 @@ def render(df):
         st.markdown('</div>', unsafe_allow_html=True)
 
     with right:
-<<<<<<< HEAD
-=======
-        st.markdown("#### Preferences")
-        st.selectbox(
-            "Language",
-            list(LANGUAGE_OPTIONS.keys()),
-            format_func=lambda code: LANGUAGE_OPTIONS[code],
-            key="language",
-        )
-
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         st.markdown("#### Credential Storage")
         st.code(info["auth_file"], language="text")
         st.caption(

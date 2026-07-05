@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 # ════════════════════════════════════════════════════════
 #  DataBridge AI — Entry Point
 #  Run: streamlit run app.py
@@ -18,10 +14,6 @@ import streamlit as st
 from config.settings  import PAGE_CONFIG
 from core.session     import init_session_state
 from core.auth        import render_login_gate, logout, render_change_password_form
-<<<<<<< HEAD
-=======
-from core.i18n        import t, LANGUAGE_OPTIONS
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 from modules.import_engine  import smart_parse_file, SUPPORTED_FILE_TYPES, read_sqlalchemy_query
 from core.dataset     import activate_dataset
 from ui.styles  import inject_css
@@ -127,22 +119,9 @@ def _render_import_report(report: dict, df) -> None:
 # ════════════════════════════════════════════════════════
 if st.session_state.df is None:
     with st.sidebar:
-<<<<<<< HEAD
         with st.expander("Account settings", expanded=False):
             render_change_password_form(prefix="no_file")
         if st.button("Logout", use_container_width=True, key="logout_no_file"):
-=======
-        st.selectbox(
-            "🌐 Language / اللغة",
-            list(LANGUAGE_OPTIONS.keys()),
-            format_func=lambda code: LANGUAGE_OPTIONS[code],
-            key="language",
-            label_visibility="visible",
-        )
-        with st.expander("Account settings", expanded=False):
-            render_change_password_form(prefix="no_file")
-        if st.button(t("logout"), use_container_width=True, key="logout_no_file"):
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
             logout()
             st.rerun()
         st.markdown("---")
@@ -152,17 +131,10 @@ if st.session_state.df is None:
     <div style="text-align:center;padding:4rem 2rem;border:1px dashed #2a2a4e;
          border-radius:16px;background:#0d0d1a;margin:2rem 0;">
       <div style="font-size:3rem;margin-bottom:1rem;">🌉</div>
-<<<<<<< HEAD
       <h3 style="color:#e0e0f0;margin-bottom:.5rem;">Upload your dataset</h3>
       <p style="color:#555;font-size:.85rem;">CSV and Excel files · Multi-sheet detection · Arabic text supported</p>
       <p style="color:#7c6aff;font-size:.78rem;">
         🧠 Smart parser auto-detects headers, cleans noise, and standardises data
-=======
-      <h3 style="color:#e0e0f0;margin-bottom:.5rem;">{t('upload_title')}</h3>
-      <p style="color:#555;font-size:.85rem;">{t('upload_desc')}</p>
-      <p style="color:#7c6aff;font-size:.78rem;">
-        🧠 {t('upload_smart')}
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
       </p>
     </div>
     """, unsafe_allow_html=True)

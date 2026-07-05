@@ -15,15 +15,9 @@ class AnthropicCloudEngine(AIEngineStrategy):
         import anthropic as _anthropic
         client = _anthropic.Anthropic(api_key=self.api_key)
         system = (
-<<<<<<< HEAD
             "You are an expert data analyst inside DataBridge AI. "
             "Here is the currently loaded dataset:\n" + context +
             "\nAnswer in English. Be precise and concise."
-=======
-            "أنت محلل بيانات خبير داخل DataBridge AI. "
-            "إليك ملف البيانات المحمل حالياً:\n" + context +
-            "\nأجب بنفس لغة المستخدم (عربي أو إنجليزي). كن دقيقاً ومختصراً."
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         )
         messages = history[-20:] + [{"role": "user", "content": prompt}]
         response = client.messages.create(
@@ -36,15 +30,3 @@ class AnthropicCloudEngine(AIEngineStrategy):
 
     def get_engine_type(self) -> str:
         return "cloud"
-<<<<<<< HEAD
-
-    def test_connection(self) -> tuple[bool, str]:
-        try:
-            import anthropic as _anthropic
-            client = _anthropic.Anthropic(api_key=self.api_key)
-            client.models.retrieve(self.model)
-            return True, f"Connected — model '{self.model}' is available."
-        except Exception as exc:
-            return False, f"Claude API error: {exc}"
-=======
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d

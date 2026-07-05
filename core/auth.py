@@ -15,10 +15,6 @@ from typing import Any
 import streamlit as st
 
 from config.settings import DEFAULT_LOGIN_USERNAME, LOGIN_REQUIRED
-<<<<<<< HEAD
-=======
-from core.i18n import LANGUAGE_OPTIONS, t
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 
 from pathlib import Path as _DBPath
 import os as _db_os
@@ -254,16 +250,6 @@ def render_change_password_form(prefix: str = "account") -> None:
 def _render_first_run_setup() -> None:
     top_c1, top_c2, top_c3 = st.columns([1, 1.2, 1])
     with top_c2:
-<<<<<<< HEAD
-=======
-        st.selectbox(
-            "🌐 Language / اللغة",
-            list(LANGUAGE_OPTIONS.keys()),
-            format_func=lambda code: LANGUAGE_OPTIONS[code],
-            key="language",
-            label_visibility="visible",
-        )
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         st.markdown(
             """
             <div class="login-card">
@@ -288,31 +274,8 @@ def _render_first_run_setup() -> None:
                 st.error(msg)
 
 
-<<<<<<< HEAD
 def render_login_gate() -> bool:
     """Render setup/login screen if needed. Returns True when the app can continue."""
-=======
-def _sync_secrets_to_env() -> None:
-    """Bridge Streamlit Cloud Secrets into os.environ for credential overrides.
-
-    Lets a deployment configure DATABRIDGE_USERNAME / DATABRIDGE_PASSWORD (or
-    DATABRIDGE_PASSWORD_HASH) via the Streamlit Cloud "Secrets" panel without any
-    code change, so a public demo account works without the first-run setup gate.
-    """
-    for key in ("DATABRIDGE_USERNAME", "DATABRIDGE_PASSWORD", "DATABRIDGE_PASSWORD_HASH"):
-        if not os.environ.get(key):
-            try:
-                if key in st.secrets:
-                    os.environ[key] = str(st.secrets[key])
-            except Exception:
-                pass
-
-
-def render_login_gate() -> bool:
-    """Render setup/login screen if needed. Returns True when the app can continue."""
-    _sync_secrets_to_env()
-
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
     if not LOGIN_REQUIRED:
         st.session_state.is_authenticated = True
         return True
@@ -326,44 +289,21 @@ def render_login_gate() -> bool:
 
     top_c1, top_c2, top_c3 = st.columns([1, 1.2, 1])
     with top_c2:
-<<<<<<< HEAD
         st.markdown(
             """
             <div class="login-card">
               <div class="login-logo">🌉</div>
               <h2>Sign in to DataBridge AI</h2>
               <p>Local secure access before opening datasets and AI tools.</p>
-=======
-        st.selectbox(
-            "🌐 Language / اللغة",
-            list(LANGUAGE_OPTIONS.keys()),
-            format_func=lambda code: LANGUAGE_OPTIONS[code],
-            key="language",
-            label_visibility="visible",
-        )
-
-        st.markdown(
-            f"""
-            <div class="login-card">
-              <div class="login-logo">🌉</div>
-              <h2>{t('login_title')}</h2>
-              <p>{t('login_subtitle')}</p>
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
             </div>
             """,
             unsafe_allow_html=True,
         )
 
         with st.form("login_form", clear_on_submit=False):
-<<<<<<< HEAD
             username = st.text_input("Username", value=_expected_username())
             password = st.text_input("Password", type="password")
             submitted = st.form_submit_button("Sign in", use_container_width=True)
-=======
-            username = st.text_input(t("username"), value=_expected_username())
-            password = st.text_input(t("password"), type="password")
-            submitted = st.form_submit_button(t("sign_in"), use_container_width=True)
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 
         if submitted:
             if check_credentials(username, password):
@@ -371,10 +311,6 @@ def render_login_gate() -> bool:
                 st.session_state.current_user = username.strip()
                 st.rerun()
             else:
-<<<<<<< HEAD
                 st.error("Invalid username or password.")
-=======
-                st.error(t("wrong_login"))
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
 
     return False

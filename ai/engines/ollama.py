@@ -7,11 +7,7 @@ from ai.base import AIEngineStrategy
 
 class OllamaLocalEngine(AIEngineStrategy):
 
-<<<<<<< HEAD
     def __init__(self, host: str = "http://localhost:11434", model: str = "llava"):
-=======
-    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3"):
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         self.host  = host.rstrip("/")
         self.model = model
 
@@ -21,18 +17,10 @@ class OllamaLocalEngine(AIEngineStrategy):
             for m in history[-10:]
         )
         full_prompt = (
-<<<<<<< HEAD
-            f"You are an expert data analyst inside DataBridge AI.\n"
-            f"Data context:\n{context}\n\n"
-            f"Previous conversation:\n{history_text}\n\n"
-            f"User: {prompt}\n\n"
-            "Answer in English. Be precise and concise."
-=======
             f"أنت محلل بيانات خبير داخل DataBridge AI.\n"
             f"سياق البيانات:\n{context}\n\n"
             f"المحادثة السابقة:\n{history_text}\n\n"
             f"المستخدم: {prompt}"
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
         )
         resp = requests.post(
             f"{self.host}/api/generate",
@@ -44,7 +32,6 @@ class OllamaLocalEngine(AIEngineStrategy):
 
     def get_engine_type(self) -> str:
         return "local"
-<<<<<<< HEAD
 
     def test_connection(self) -> tuple[bool, str]:
         try:
@@ -58,5 +45,3 @@ class OllamaLocalEngine(AIEngineStrategy):
             return True, f"Connected — model '{self.model}' is available."
         available = ", ".join(models) or "none"
         return False, f"Connected to Ollama, but model '{self.model}' was not found. Available: {available}"
-=======
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d
