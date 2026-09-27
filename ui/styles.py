@@ -4,7 +4,6 @@
 
 CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
     --bg: #080810;
@@ -482,27 +481,47 @@ section[data-testid="stSidebar"] .stCheckbox label {
 }
 
 /* ── Tabs / expanders ───────────────────────────────── */
+/* Tabs are deliberately rendered as compact button/pill controls so nested
+   workflow tabs are visually obvious and keyboard/hover states remain clear. */
 .stTabs [data-baseweb="tab-list"] {
-    gap: .25rem !important;
-    background: transparent !important;
-    border-bottom: 1px solid var(--border) !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
+    gap: .45rem !important;
+    background: var(--surface-2) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 11px !important;
+    padding: .35rem !important;
+    overflow-x: auto !important;
+    scrollbar-width: thin !important;
 }
 .stTabs [data-baseweb="tab"] {
-    background: transparent !important;
-    color: var(--text-faint) !important;
-    border: none !important;
-    border-bottom: 2px solid transparent !important;
-    border-radius: 0 !important;
-    font-size: .8rem !important;
+    min-height: 36px !important;
+    background: var(--surface) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 8px !important;
+    padding: .42rem .78rem !important;
+    font-size: .78rem !important;
     font-weight: 700 !important;
-    letter-spacing: .06em !important;
+    letter-spacing: .045em !important;
     text-transform: uppercase !important;
+    box-shadow: none !important;
+    transition: background .12s ease, color .12s ease, border-color .12s ease !important;
 }
-.stTabs [aria-selected="true"] {
-    color: var(--primary) !important;
-    border-bottom-color: var(--primary) !important;
+.stTabs [data-baseweb="tab"]:hover {
+    background: var(--surface-3) !important;
+    color: var(--text) !important;
+    border-color: var(--primary) !important;
+}
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background: var(--primary-soft) !important;
+    color: var(--text) !important;
+    border-color: var(--primary) !important;
+    box-shadow: inset 0 0 0 1px rgba(124, 106, 255, .18) !important;
+}
+/* BaseWeb also draws a separate underline/highlight for tabs. The bordered
+   selected pill above is the active indicator, so hide the redundant line. */
+.stTabs [data-baseweb="tab-highlight"],
+.stTabs [data-baseweb="tab-border"] {
+    display: none !important;
 }
 .streamlit-expanderHeader,
 [data-testid="stExpander"] {

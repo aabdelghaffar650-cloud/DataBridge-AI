@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from core.security import anonymise_df_for_ai
+from core.security import safe_error_message
+from core.session import append_audit_event
 from ui.cards import section_header
 
 
@@ -259,51 +260,83 @@ def render(df: pd.DataFrame) -> None:
         unsafe_allow_html=True,
     )
 
-    mode      = st.session_state.get("ai_mode", "demo")
+    mode = st.session_state.get("ai_mode", "demo")
     ai_engine = st.session_state.get("ai_engine", None)
+    privacy_mode = str(
+        getattr(ai_engine, "privacy_mode", st.session_state.get("ai_privacy_mode", "metadata"))
+    )
+    engine_type = str(getattr(ai_engine, "engine_type", "demo")) if ai_engine is not None else "demo"
+    privacy_label = {
+        "metadata": "Metadata only — no sample rows",
+        "masked": "Masked sample",
+        "raw": "Raw sample — explicitly approved",
+    }.get(privacy_mode, privacy_mode)
+    provider_label = {
+        "anthropic": "Claude / Anthropic Cloud",
+        "gemini": "Google Gemini Cloud",
+        "ollama": "Ollama remote host" if engine_type == "remote" else "Ollama loopback",
+        "demo": "Demo Mode",
+    }.get(mode, "Demo Mode")
+    tone = "#6bffb8" if mode != "demo" else "#ffb86b"
+    st.markdown(
+        f'<div class="info-box"><b style="color:{tone}">{html.escape(provider_label)}</b>'
+        f' · Privacy: <b>{html.escape(privacy_label)}</b></div>',
+        unsafe_allow_html=True,
+    )
 
-    banner_map = {
-        "anthropic": '<div class="info-box">✅ <b style="color:#6bffb8">Claude AI connected</b> — Anthropic Cloud</div>',
-        "ollama":    '<div class="info-box">🟢 <b style="color:#6bffb8">Ollama connected</b> — local engine</div>',
-        "gemini":    '<div class="info-box">🔴 <b style="color:#6bffb8">Google Gemini connected</b> — 🛡️ PII masking active</div>',
-        "demo":      '<div class="info-box">🟡 <b style="color:#ffb86b">Demo Mode</b> — no API key. Choose engine in sidebar.</div>',
-    }
-    st.markdown(banner_map.get(mode, banner_map["demo"]), unsafe_allow_html=True)
-
-    # ── Send handler ──
     def handle_send(user_text: str) -> None:
         st.session_state.ai_messages.append({"role": "user", "content": user_text})
-
         if mode in ("anthropic", "ollama", "gemini") and ai_engine is not None:
             try:
-                history   = st.session_state.ai_messages[:-1]
-                df_for_ai = df
-                if mode == "gemini" and st.session_state.get("gemini_mask_pii", True):
-                    df_for_ai = anonymise_df_for_ai(df)
-                elif mode == "anthropic" and not ai_engine.allow_cloud_data:
-                    df_for_ai = anonymise_df_for_ai(df)
+                history = st.session_state.ai_messages[:-1]
                 with st.spinner("Analysing..."):
-                    reply = ai_engine.process_task(df_for_ai, _cloud_prompt(user_text, df_for_ai), history)
+                    reply = ai_engine.process_task(
+                        df,
+                        _cloud_prompt(user_text, df),
+                        history,
+                    )
+                privacy_report = getattr(ai_engine, "last_privacy_report", {}) or {}
+                append_audit_event(
+                    {
+                        "event": "ai_analysis",
+                        "action": "Privacy-controlled AI analysis completed",
+                        "engine": mode,
+                        "engine_type": engine_type,
+                        "privacy_mode": privacy_mode,
+                        "rows": int(df.shape[0]),
+                        "columns": int(df.shape[1]),
+                        "masked_columns": len(privacy_report.get("masked_columns", []) or []),
+                        "value_redactions": int(privacy_report.get("value_redactions", 0) or 0),
+                    }
+                )
             except Exception as exc:
-                reply = f"⚠️ Error: {exc}"
+                reply = f"⚠️ Request blocked safely: {safe_error_message(exc)}"
+                append_audit_event(
+                    {
+                        "event": "ai_analysis_blocked",
+                        "action": "AI analysis blocked safely",
+                        "engine": mode,
+                        "engine_type": engine_type,
+                        "privacy_mode": privacy_mode,
+                        "error_type": exc.__class__.__name__,
+                    }
+                )
         else:
             reply = _demo_response(df, user_text)
 
         st.session_state.ai_messages.append({"role": "assistant", "content": reply})
 
-    # ── Suggested prompts ──
     suggestions = _build_suggestions(df)
     st.markdown("**Smart suggestions based on this dataset**")
     cols = st.columns(2)
     for i, sug in enumerate(suggestions):
         with cols[i % 2]:
-            if st.button(sug["label"], key=f"smart_sug_{i}", use_container_width=True):
+            if st.button(sug["label"], key=f"smart_sug_{i}", width="stretch"):
                 handle_send(sug["prompt"])
                 st.rerun()
 
     st.markdown("---")
 
-    # ── Chat history ──
     for msg in st.session_state.ai_messages:
         if msg["role"] == "user":
             safe_content = html.escape(msg["content"])
@@ -319,7 +352,6 @@ def render(df: pd.DataFrame) -> None:
                 unsafe_allow_html=True,
             )
 
-    # ── Input ──
     ai_c1, ai_c2 = st.columns([5, 1])
     with ai_c1:
         user_input = st.text_input(
@@ -327,7 +359,7 @@ def render(df: pd.DataFrame) -> None:
             key="ai_input", label_visibility="collapsed",
         )
     with ai_c2:
-        if st.button("Send →", use_container_width=True) and user_input.strip():
+        if st.button("Send →", width="stretch") and user_input.strip():
             handle_send(user_input.strip())
             st.rerun()
 

@@ -16,4 +16,4 @@ class AIEngineStrategy(abc.ABC):
 
     def test_connection(self) -> tuple[bool, str]:
         """Verify the engine is reachable/configured. Returns (ok, message)."""
-        return True, "OK"
+        return False, "Connection test is not implemented for this engine."

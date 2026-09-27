@@ -27,7 +27,7 @@ def render(df) -> None:
         fig = px.histogram(df, x=col, nbins=bins, template=plotly_theme,
                            color_discrete_sequence=["#7c6aff"])
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(13,13,26,1)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Bar Chart":
         c1, c2 = st.columns(2)
@@ -38,7 +38,7 @@ def render(df) -> None:
         fig = px.bar(agg, x=x_col, y=y_col, template=plotly_theme,
                      color_discrete_sequence=["#7c6aff"])
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(13,13,26,1)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Line Chart":
         c1, c2 = st.columns(2)
@@ -47,7 +47,7 @@ def render(df) -> None:
         fig = px.line(df, x=x_col, y=y_col, template=plotly_theme,
                       color_discrete_sequence=["#7c6aff"])
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(13,13,26,1)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Scatter Plot":
         c1, c2, c3 = st.columns(3)
@@ -58,7 +58,7 @@ def render(df) -> None:
         fig = px.scatter(df, x=x_col, y=y_col, color=color, template=plotly_theme,
                          color_discrete_sequence=["#7c6aff"])
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(13,13,26,1)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Box Plot":
         c1, c2 = st.columns(2)
@@ -68,7 +68,7 @@ def render(df) -> None:
         fig = px.box(df, x=x, y=y_col, template=plotly_theme,
                      color_discrete_sequence=["#7c6aff"])
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(13,13,26,1)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Pie Chart":
         c1, c2 = st.columns(2)
@@ -79,7 +79,7 @@ def render(df) -> None:
         fig = px.pie(pie_data, names=name_col, values=val_col_pie, template=plotly_theme,
                      color_discrete_sequence=px.colors.sequential.Purples_r)
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Heatmap (Correlation)":
         if len(num_columns) < 2:
@@ -89,7 +89,7 @@ def render(df) -> None:
             fig = px.imshow(corr, template=plotly_theme, color_continuous_scale="RdBu_r",
                             text_auto=".2f", aspect="auto")
             fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     elif chart_type == "Distribution (all numeric)":
         if not num_columns:
@@ -106,7 +106,7 @@ def render(df) -> None:
                                             opacity=0.7))
                 fig.update_layout(template=plotly_theme, paper_bgcolor='rgba(0,0,0,0)',
                                   plot_bgcolor='rgba(13,13,26,1)')
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
 
 # ════════════════════════════════════════════════════════

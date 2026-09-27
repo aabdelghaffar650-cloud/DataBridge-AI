@@ -30,8 +30,8 @@ STRINGS = {
         "ar": "يدعم CSV و Excel · اكتشاف الشيت المناسب · دعم اللغة العربية",
     },
     "upload_smart": {
-        "en": "Smart parser auto-detects headers, cleans noise, and standardises data",
-        "ar": "المعالج الذكي يكتشف العناوين وينظف الضوضاء ويوحد القيم تلقائيًا",
+        "en": "Safe parser protects the source and waits for approval before value changes",
+        "ar": "المعالج الآمن يحمي المصدر وينتظر موافقتك قبل تغيير القيم أو حذف البيانات",
     },
     "ai_title": {"en": "AI Data Assistant", "ar": "مساعد تحليل البيانات الذكي"},
     "ai_subtitle": {"en": "Dataset-aware intelligence", "ar": "أسئلة ذكية حسب الملف الحالي"},

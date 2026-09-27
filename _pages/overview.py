@@ -3,6 +3,7 @@
 # ════════════════════════════════════════════════════════
 import pandas as pd
 import streamlit as st
+from ui.streamlit_compat import safe_dataframe
 
 from ui.cards import section_header
 
@@ -35,7 +36,7 @@ def render(df: pd.DataFrame) -> None:
         section_header("👁", "Data Preview", "first 20 rows"),
         unsafe_allow_html=True,
     )
-    st.dataframe(df.head(20), use_container_width=True, height=380)
+    safe_dataframe(df.head(20), width="stretch", height=380)
 
     st.markdown(
         section_header("🔬", "Column Profiles", "all columns"),
@@ -59,4 +60,4 @@ def render(df: pd.DataFrame) -> None:
             "Null %": f"{round(n_null / df.shape[0] * 100, 1)}%",
             "Unique": n_unique, "Sample": sample[:30], "Stats": extra,
         })
-    st.dataframe(pd.DataFrame(profile_rows), use_container_width=True, height=350)
+    safe_dataframe(pd.DataFrame(profile_rows), width="stretch", height=350)

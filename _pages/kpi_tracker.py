@@ -7,6 +7,7 @@ import streamlit as st
 
 from modules.kpi_tracker import compute_kpi, compute_achievement
 from ui.cards import section_header, info_box
+from core.dataset import current_dataset_revision, update_dataset_context
 
 
 def render(df: pd.DataFrame) -> None:
@@ -15,6 +16,7 @@ def render(df: pd.DataFrame) -> None:
         unsafe_allow_html=True,
     )
 
+    revision = current_dataset_revision()
     num_cols = df.select_dtypes(include="number").columns.tolist()
     if not num_cols:
         st.warning("⚠️ No numeric columns found. KPI tracking requires numeric data.")
@@ -99,7 +101,7 @@ def render(df: pd.DataFrame) -> None:
                         line_color="#6bff8e", annotation_text="Annual Target",
                     )
                     fig.update_layout(paper_bgcolor="#0d0d1a", plot_bgcolor="#0d0d1a", height=280)
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
 
             kpi_targets[kpi_col] = {
                 "annual":    annual_target,
@@ -108,5 +110,11 @@ def render(df: pd.DataFrame) -> None:
             }
 
     if st.button("💾 Save KPI Targets", key="kpi_save"):
-        st.session_state.kpi_targets = kpi_targets
-        st.success("✅ KPI Targets saved!")
+        try:
+            update_dataset_context(
+                expected_revision=revision,
+                kpi_targets=kpi_targets,
+            )
+            st.success("✅ KPI Targets saved!")
+        except Exception as exc:
+            st.error(f"KPI targets were not saved: {exc}")

@@ -1,0 +1,22 @@
+# DataBridge AI 1.20.0 — direct production dependency lock.
+# Prepared for the portable CPython 3.12 Windows runtime built by Stage 13.
+streamlit==1.58.0
+pandas==3.0.3
+numpy==2.4.6
+scipy==1.17.1
+plotly==6.8.0
+openpyxl==3.1.5
+xlrd==2.0.2
+pyarrow==24.0.0
+scikit-learn==1.9.0
+requests==2.34.2
+anthropic==0.108.0
+sqlalchemy==2.0.50
+pymysql==1.2.0
+psycopg2-binary==2.9.12
+numexpr==2.14.1
+python-magic==0.4.27; platform_system != "Windows"
+python-magic-bin==0.4.14; platform_system == "Windows"
+keyring==25.6.0
+cryptography==46.0.4
+xgboost-cpu==3.4.0; platform_system == "Windows"

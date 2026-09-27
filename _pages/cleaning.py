@@ -1,89 +1,191 @@
 # ════════════════════════════════════════════════════════
 #  DataBridge AI — Page: Clean & Fix Nulls
+#  Stage 5: atomic dataset mutations
 # ════════════════════════════════════════════════════════
 import pandas as pd
 import streamlit as st
+from ui.streamlit_compat import safe_dataframe
 
-from core.session import save_history
-from ui.cards     import section_header
+from core.dataset import apply_dataset_change, current_dataset_revision
+from ui.cards import section_header
+
+
+def _cast_input(value: str):
+    try:
+        return float(value) if "." in value else int(value)
+    except (TypeError, ValueError):
+        return value
 
 
 def render(df: pd.DataFrame) -> None:
     st.markdown(section_header("🧹", "Clean & Fix Missing Values"), unsafe_allow_html=True)
+    revision = current_dataset_revision()
 
     null_info = df.isnull().sum()
-    null_df   = pd.DataFrame({"Column": null_info.index, "Missing": null_info.values,
-                               "Pct": (null_info.values / len(df) * 100).round(1)})
-    null_df   = null_df[null_df["Missing"] > 0].sort_values("Missing", ascending=False)
+    denominator = max(len(df), 1)
+    null_df = pd.DataFrame({
+        "Column": null_info.index,
+        "Missing": null_info.values,
+        "Pct": (null_info.values / denominator * 100).round(1),
+    })
+    null_df = null_df[null_df["Missing"] > 0].sort_values("Missing", ascending=False)
 
     if null_df.empty:
         st.success("✓ No missing values detected!")
     else:
-        st.dataframe(null_df, use_container_width=True, height=250)
+        safe_dataframe(null_df, width="stretch", height=250)
 
         col_a, col_b = st.columns(2)
         with col_a:
             st.subheader("Quick Fix — Fake Nulls")
-            st.markdown('<div class="info-box">Converts text like None, null, N/A, -, ? to real NaN.</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="info-box">Converts text like None, null, N/A, -, ? to real NaN.</div>',
+                unsafe_allow_html=True,
+            )
             if st.button("✨ Convert Fake Nulls to NaN"):
-                save_history()
-                fake = [r"^\s*$", "None", "none", "null", "Null", "NaN", "nan", "NA", "N/A", "n/a", "-", "--", "?", "missing", "MISSING"]
-                st.session_state.df = st.session_state.df.replace(fake, None, regex=True)
-                st.success("Done!")
-                st.rerun()
+                fake = [
+                    r"^\s*$", "None", "none", "null", "Null", "NaN", "nan",
+                    "NA", "N/A", "n/a", "-", "--", "?", "missing", "MISSING",
+                ]
+                try:
+                    result = apply_dataset_change(
+                        "Convert fake null text to missing values",
+                        lambda working: working.replace(fake, None, regex=True),
+                        details={"patterns": len(fake)},
+                        expected_revision=revision,
+                    )
+                    st.success("Done!" if result.changed else "No matching fake null values were found.")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Change blocked safely: {exc}")
 
         with col_b:
             st.subheader("Global Actions")
-            null_action = st.radio("Action:", ["Drop rows with nulls", "Fill all nulls with value", "Fill numeric with mean", "Fill numeric with median"])
+            null_action = st.radio(
+                "Action:",
+                [
+                    "Drop rows with nulls",
+                    "Fill all nulls with value",
+                    "Fill numeric with mean",
+                    "Fill numeric with median",
+                ],
+            )
             if null_action == "Drop rows with nulls":
                 if st.button("Apply Drop"):
-                    save_history()
-                    before = len(st.session_state.df)
-                    st.session_state.df = st.session_state.df.dropna()
-                    st.success(f"Dropped {before - len(st.session_state.df):,} rows.")
-                    st.rerun()
+                    before = len(df)
+                    try:
+                        result = apply_dataset_change(
+                            "Drop rows containing missing values",
+                            lambda working: working.dropna().reset_index(drop=True),
+                            details={"scope": "all columns"},
+                            expected_revision=revision,
+                        )
+                        st.success(f"Dropped {before - result.after_shape[0]:,} rows.")
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Change blocked safely: {exc}")
             elif null_action == "Fill all nulls with value":
                 fv = st.text_input("Fill value:")
                 if st.button("Apply Fill") and fv:
-                    save_history()
-                    try:    fv_cast = float(fv) if "." in fv else int(fv)
-                    except: fv_cast = fv
-                    st.session_state.df = st.session_state.df.fillna(fv_cast)
-                    st.success("Done!"); st.rerun()
+                    fill_value = _cast_input(fv)
+                    try:
+                        result = apply_dataset_change(
+                            "Fill all missing values",
+                            lambda working: working.fillna(fill_value),
+                            details={"scope": "all columns", "value_type": type(fill_value).__name__},
+                            expected_revision=revision,
+                        )
+                        st.success("Done!" if result.changed else "No missing values required filling.")
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Change blocked safely: {exc}")
             elif null_action == "Fill numeric with mean":
                 if st.button("Apply Mean Fill"):
-                    save_history()
-                    for c in st.session_state.df.select_dtypes(include="number").columns:
-                        st.session_state.df[c] = st.session_state.df[c].fillna(st.session_state.df[c].mean())
-                    st.success("Done!"); st.rerun()
+                    def fill_means(working: pd.DataFrame) -> pd.DataFrame:
+                        for column in working.select_dtypes(include="number").columns:
+                            working[column] = working[column].fillna(working[column].mean())
+                        return working
+
+                    try:
+                        result = apply_dataset_change(
+                            "Fill numeric missing values with mean",
+                            fill_means,
+                            details={"strategy": "mean"},
+                            expected_revision=revision,
+                        )
+                        st.success("Done!" if result.changed else "No numeric missing values required filling.")
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Change blocked safely: {exc}")
             elif null_action == "Fill numeric with median":
                 if st.button("Apply Median Fill"):
-                    save_history()
-                    for c in st.session_state.df.select_dtypes(include="number").columns:
-                        st.session_state.df[c] = st.session_state.df[c].fillna(st.session_state.df[c].median())
-                    st.success("Done!"); st.rerun()
+                    def fill_medians(working: pd.DataFrame) -> pd.DataFrame:
+                        for column in working.select_dtypes(include="number").columns:
+                            working[column] = working[column].fillna(working[column].median())
+                        return working
+
+                    try:
+                        result = apply_dataset_change(
+                            "Fill numeric missing values with median",
+                            fill_medians,
+                            details={"strategy": "median"},
+                            expected_revision=revision,
+                        )
+                        st.success("Done!" if result.changed else "No numeric missing values required filling.")
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Change blocked safely: {exc}")
 
     st.markdown("---")
     st.subheader("Per-Column Fix")
     pc1, pc2, pc3 = st.columns(3)
-    with pc1: per_col    = st.selectbox("Column:", df.columns, key="per_col")
-    with pc2: per_action = st.selectbox("Fill with:", ["Custom value", "Mean", "Median", "Mode", "Forward fill", "Backward fill"])
+    with pc1:
+        per_col = st.selectbox("Column:", df.columns, key="per_col")
+    with pc2:
+        per_action = st.selectbox(
+            "Fill with:",
+            ["Custom value", "Mean", "Median", "Mode", "Forward fill", "Backward fill"],
+        )
     with pc3:
         per_val = ""
         if per_action == "Custom value":
             per_val = st.text_input("Value:", key="per_val")
 
     if st.button("Apply to Column"):
-        save_history()
-        s = st.session_state.df[per_col]
-        if per_action == "Custom value" and per_val:
-            try:    v = float(per_val) if "." in per_val else int(per_val)
-            except: v = per_val
-            st.session_state.df[per_col] = s.fillna(v)
-        elif per_action == "Mean":    st.session_state.df[per_col] = s.fillna(s.mean())
-        elif per_action == "Median":  st.session_state.df[per_col] = s.fillna(s.median())
-        elif per_action == "Mode":    st.session_state.df[per_col] = s.fillna(s.mode()[0] if not s.mode().empty else s)
-        elif per_action == "Forward fill":  st.session_state.df[per_col] = s.ffill()
-        elif per_action == "Backward fill": st.session_state.df[per_col] = s.bfill()
-        st.success(f"Applied '{per_action}' to '{per_col}'!")
-        st.rerun()
+        if per_action == "Custom value" and per_val == "":
+            st.error("Enter a custom fill value.")
+            return
+
+        def fill_column(working: pd.DataFrame) -> pd.DataFrame:
+            series = working[per_col]
+            if per_action == "Custom value":
+                working[per_col] = series.fillna(_cast_input(per_val))
+            elif per_action == "Mean":
+                working[per_col] = series.fillna(series.mean())
+            elif per_action == "Median":
+                working[per_col] = series.fillna(series.median())
+            elif per_action == "Mode":
+                mode = series.mode()
+                if not mode.empty:
+                    working[per_col] = series.fillna(mode.iloc[0])
+            elif per_action == "Forward fill":
+                working[per_col] = series.ffill()
+            elif per_action == "Backward fill":
+                working[per_col] = series.bfill()
+            return working
+
+        try:
+            result = apply_dataset_change(
+                f"Fill missing values in {per_col}",
+                fill_column,
+                details={"column": str(per_col), "strategy": per_action},
+                expected_revision=revision,
+            )
+            st.success(
+                f"Applied '{per_action}' to '{per_col}'!"
+                if result.changed
+                else f"No missing values in '{per_col}' required changes."
+            )
+            st.rerun()
+        except Exception as exc:
+            st.error(f"Change blocked safely: {exc}")

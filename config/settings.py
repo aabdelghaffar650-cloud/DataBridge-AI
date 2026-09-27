@@ -33,9 +33,18 @@ NAV_PAGE_KEYS = [
     "visualization",
     "outlier_detection",
     "ml_studio",
+    "explainability_studio",
+    "prediction_studio",
+    "model_monitoring",
+    "monitoring_scheduler",
+    "deployment_api",
+    "remote_model_registry",
+    "retraining_workflow",
+    "model_governance",
     "delete_dedupe",
     "export",
     "settings",
+    "team_admin",
     "ai_assistant",
 ]
 
@@ -43,15 +52,8 @@ NAV_PAGE_KEYS = [
 DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
 DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-20250514"
 # Writable user-data locations. Do not store mutable files inside Program Files.
-from pathlib import Path as _SettingsPath
-import os as _settings_os
-USER_DATA_DIR = _SettingsPath(
-    _settings_os.environ.get("DATABRIDGE_USER_DATA_DIR")
-    or _settings_os.environ.get("LOCALAPPDATA")
-    or _settings_os.environ.get("APPDATA")
-    or str(_SettingsPath.home())
-) / "DataBridgeAI"
-USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
+from core.user_paths import user_data_dir as _user_data_dir
+USER_DATA_DIR = _user_data_dir()
 USER_SETTINGS_FILE = USER_DATA_DIR / "settings.json"
 USER_AUTH_FILE = USER_DATA_DIR / "auth.json"
 USER_LOG_DIR = USER_DATA_DIR / "logs"

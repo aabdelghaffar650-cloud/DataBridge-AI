@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "DataBridge AI",
-  "version": "0.1.3",
+  "version": "1.20.0",
   "identifier": "com.databridge.ai",
   "build": {
     "beforeDevCommand": "",
@@ -11,45 +11,38 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "DataBridge AI",
         "width": 1440,
         "height": 920,
         "minWidth": 1100,
         "minHeight": 720,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "create": false
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self' http://127.0.0.1:*",
+        "connect-src": "'self' ipc: http://ipc.localhost http://127.0.0.1:* ws://127.0.0.1:*",
+        "img-src": "'self' data: blob: http://127.0.0.1:*",
+        "font-src": "'self' data: http://127.0.0.1:*",
+        "style-src": "'self' 'unsafe-inline' http://127.0.0.1:*",
+        "script-src": "'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:*",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "frame-ancestors": "'none'",
+        "form-action": "'self' http://127.0.0.1:*"
+      },
+      "dangerousDisableAssetCspModification": false,
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()"
+      }
     }
   },
   "bundle": {
-<<<<<<< HEAD
-  "active": true,
-  "targets": ["nsis"],
-  "resources": {
-    "../../resources/python": "python",
-    "../../app.py": "app/app.py",
-    "../../launch_streamlit.py": "app/launch_streamlit.py",
-    "../../requirements.txt": "app/requirements.txt",
-    "../../config": "app/config",
-    "../../core": "app/core",
-    "../../modules": "app/modules",
-    "../../ui": "app/ui",
-    "../../_pages": "app/_pages",
-    "../../ai": "app/ai",
-    "../../.streamlit": "app/.streamlit"
-  },
-  "windows": {
-    "nsis": {
-      "installMode": "currentUser",
-      "displayLanguageSelector": false
-    }
-  }
-  }
-}
-=======
     "active": true,
     "targets": [
       "nsis"
@@ -58,21 +51,20 @@
       "../../resources/python": "python",
       "../../app.py": "app/app.py",
       "../../launch_streamlit.py": "app/launch_streamlit.py",
-      "../../requirements.txt": "app/requirements.txt",
       "../../config": "app/config",
       "../../core": "app/core",
       "../../modules": "app/modules",
       "../../ui": "app/ui",
       "../../_pages": "app/_pages",
       "../../ai": "app/ai",
-      "../../.streamlit": "app/.streamlit"
+      "../../.streamlit": "app/.streamlit",
+      "../../requirements-release.txt": "app/requirements-release.txt"
     },
     "windows": {
       "nsis": {
-        "installMode": "perUser",
+        "installMode": "currentUser",
         "displayLanguageSelector": false
       }
     }
   }
 }
->>>>>>> c8e725118d9c65808b1a67b5349827ad4e22458d

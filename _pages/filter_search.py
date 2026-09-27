@@ -3,6 +3,7 @@
 # ════════════════════════════════════════════════════════
 import pandas as pd
 import streamlit as st
+from ui.streamlit_compat import safe_dataframe
 
 from core.utils import secure_multi_condition_filter
 from ui.cards   import section_header
@@ -23,7 +24,7 @@ def render(df: pd.DataFrame) -> None:
                 mask = df[search_col].astype(str).str.contains(search_q, case=False, na=False, regex=False)
             result = df[mask]
             st.markdown(f'<div class="info-box">Found <b style="color:#7c6aff">{len(result):,}</b> matching rows out of {len(df):,}</div>', unsafe_allow_html=True)
-            st.dataframe(result, use_container_width=True)
+            safe_dataframe(result, width="stretch")
             st.download_button("📥 Export results", result.to_csv(index=False).encode("utf-8-sig"), "search_results.csv", "text/csv")
 
     with tab2:
@@ -62,7 +63,7 @@ def render(df: pd.DataFrame) -> None:
                 else:                      mask = ~s.astype(str).str.contains(str(val), case=False, na=False, regex=False)
                 result = df[mask]
                 st.markdown(f'<div class="info-box">Filtered: <b style="color:#7c6aff">{len(result):,}</b> rows match</div>', unsafe_allow_html=True)
-                st.dataframe(result, use_container_width=True)
+                safe_dataframe(result, width="stretch")
                 st.download_button("📥 Export", result.to_csv(index=False).encode("utf-8-sig"), "filtered.csv", "text/csv")
             except Exception as e:
                 st.error(f"Error: {e}")
@@ -88,5 +89,5 @@ def render(df: pd.DataFrame) -> None:
             if conditions:
                 result = secure_multi_condition_filter(df, conditions)
                 st.markdown(f'<div class="info-box">Result: <b style="color:#7c6aff">{len(result):,}</b> rows</div>', unsafe_allow_html=True)
-                st.dataframe(result, use_container_width=True)
+                safe_dataframe(result, width="stretch")
                 st.download_button("📥 Export", result.to_csv(index=False).encode("utf-8-sig"), "query_results.csv", "text/csv")

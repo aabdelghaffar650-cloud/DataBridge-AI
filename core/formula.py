@@ -78,11 +78,12 @@ FORBIDDEN_TOKENS = (
 )
 
 
-def _alias_columns(formula: str, df: pd.DataFrame) -> tuple[str, dict[str, pd.Series], set[str]]:
+def _alias_columns(formula: str, df: pd.DataFrame) -> tuple[str, dict[str, pd.Series], set[str], list[str]]:
     """Replace real column names with safe aliases and return expression + local dict."""
     expr = formula
     local_dict: dict[str, pd.Series] = {}
     allowed_names: set[str] = set(ALLOWED_FUNCTIONS)
+    referenced_columns: list[str] = []
 
     columns = [str(c) for c in df.columns]
     column_lookup = {str(c): c for c in df.columns}
@@ -95,6 +96,8 @@ def _alias_columns(formula: str, df: pd.DataFrame) -> tuple[str, dict[str, pd.Se
         alias = f"_c{len(local_dict)}"
         local_dict[alias] = df[column_lookup[col_name]]
         allowed_names.add(alias)
+        if col_name not in referenced_columns:
+            referenced_columns.append(col_name)
         return alias
 
     expr = re.sub(r"`([^`]+)`", replace_backtick, expr)
@@ -111,8 +114,10 @@ def _alias_columns(formula: str, df: pd.DataFrame) -> tuple[str, dict[str, pd.Se
             expr = re.sub(pattern, alias, expr)
             local_dict[alias] = df[column_lookup[col]]
             allowed_names.add(alias)
+            if col not in referenced_columns:
+                referenced_columns.append(col)
 
-    return expr, local_dict, allowed_names
+    return expr, local_dict, allowed_names, referenced_columns
 
 
 def _validate_ast(expr: str, allowed_names: set[str]) -> None:
@@ -151,7 +156,7 @@ def safe_eval_formula(df: pd.DataFrame, formula: str) -> pd.Series:
     if any(token in lowered for token in FORBIDDEN_TOKENS):
         raise ValueError("Formula contains blocked tokens or unsafe syntax.")
 
-    expr, local_dict, allowed_names = _alias_columns(formula, df)
+    expr, local_dict, allowed_names, _referenced_columns = _alias_columns(formula, df)
     if not local_dict:
         raise ValueError("Formula must reference at least one dataset column.")
 
@@ -170,3 +175,26 @@ def safe_eval_formula(df: pd.DataFrame, formula: str) -> pd.Series:
     if not isinstance(result, pd.Series):
         result = pd.Series(result, index=df.index)
     return result
+
+
+def referenced_formula_columns(df: pd.DataFrame, formula: str) -> list[str]:
+    """Return dataset columns referenced by a safe formula in deterministic order.
+
+    The same parser/AST rules as :func:`safe_eval_formula` are applied so a
+    recorded derivation contract can never claim dependencies for a formula
+    that the evaluator itself would reject.
+    """
+    formula = (formula or "").strip()
+    if not formula:
+        raise ValueError("Formula is required.")
+    if len(formula) > MAX_FORMULA_LENGTH:
+        raise ValueError(f"Formula is too long. Maximum length is {MAX_FORMULA_LENGTH} characters.")
+    lowered = formula.lower()
+    if any(token in lowered for token in FORBIDDEN_TOKENS):
+        raise ValueError("Formula contains blocked tokens or unsafe syntax.")
+
+    expr, local_dict, allowed_names, referenced = _alias_columns(formula, df)
+    if not local_dict:
+        raise ValueError("Formula must reference at least one dataset column.")
+    _validate_ast(expr, allowed_names)
+    return list(referenced)

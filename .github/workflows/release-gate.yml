@@ -1,0 +1,22 @@
+name: DataBridge AI Release Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python-release-gate:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install locked direct dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-release.txt
+      - name: Run Stage 1-13 release gate
+        run: python tools/release_gate.py --strict-dependencies

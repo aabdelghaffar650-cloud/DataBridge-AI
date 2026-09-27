@@ -1,14 +1,16 @@
-[theme]
-base            = "dark"
-primaryColor    = "#7c6aff"
-backgroundColor = "#080810"
-secondaryBackgroundColor = "#0c0c1e"
-textColor       = "#f4f4f7"
-font            = "sans serif"
-
 [server]
-maxUploadSize   = 100
-headless        = true
+headless = false
+address = "127.0.0.1"
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
+maxUploadSize = 100
+runOnSave = false
+fileWatcherType = "none"
 
 [browser]
 gatherUsageStats = false
+
+[client]
+showErrorDetails = false
+toolbarMode = "minimal"
