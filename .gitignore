@@ -6,3 +6,33 @@ __pycache__/
 .streamlit/secrets.toml
 desktop/src-tauri/target/
 resources/
+# Stage 13 build outputs
+.build-cache/
+release-output/
+resources/python/
+resources/runtime_manifest.json
+desktop/src-tauri/target/
+# Node
+desktop/node_modules/
+node_modules/
+
+# Release / build artifacts
+release/
+dist/
+build/
+*.exe
+*.msi
+*.zip
+
+# Python / tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
