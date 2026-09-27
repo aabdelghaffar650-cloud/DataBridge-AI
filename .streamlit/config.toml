@@ -1,6 +1,6 @@
 [server]
-headless = false
-address = "127.0.0.1"
+headless = true
+address = "0.0.0.0"
 port = 8501
 enableCORS = true
 enableXsrfProtection = true
